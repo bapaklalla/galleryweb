@@ -250,11 +250,11 @@ body {
 
 /* Modal Blink Animation */
 .modal.active .modal-overlay {
-  animation: orangeBlink 0.3s ease-in-out forwards;
+  animation: orangeBlink 0.5s ease-in-out forwards;
 }
 
 .modal.active img {
-  animation: imageReveal 0.3s ease-in-out forwards;
+  animation: imageReveal 0.5s ease-in-out forwards;
 }
 
 /* Keyframes untuk blink warna orange */
