@@ -1,0 +1,462 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #262626;
+  font-family: sans-serif;
+  display: flex;
+}
+
+.sidebar1 {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 75px;
+  z-index: 2;
+  background-image: url('content.svg');
+  background-repeat: no-repeat;
+}
+
+.sidebar2 {
+  position: fixed;
+  top: 0;
+  width: 20px;
+  height: 100vh;
+  background: #0A0A0A;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.gallery-container {
+  width: calc(100vw - 100px); /* ← SESUAIKAN DENGAN SIDEBAR BARU */
+  height: 100vh;
+  margin-left: 45px; /* ← SESUAIKAN DENGAN SIDEBAR BARU */
+  padding: 13px;
+  overflow-y: auto;
+  position: relative;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar {
+  position: fixed;
+  top: 0;
+  right: 4px;
+  width: 4px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.scrollbar-track {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  background: transparent;
+  pointer-events: all;
+  border-radius: 4px;
+}
+
+.scrollbar-thumb {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  background: #ff9d00;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  pointer-events: all;
+}
+
+.scrollbar-thumb:hover {
+  background: #ff8c00;
+}
+
+/* Sembunyikan scrollbar default */
+.gallery-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gallery-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Gallery */
+.gallery {
+  width: 100%;
+  columns: 6;
+  column-gap: 12px;
+}
+
+/* Thumbnail */
+.thumb {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 12px;
+  break-inside: avoid;
+  width: 100%;
+  cursor: pointer;
+  transform: translateX(-100px);
+}
+
+.thumb img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  transition: transform 0.1s ease;
+  opacity: 0;
+}
+
+/* Background orange untuk blink effect */
+.thumb::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ff9d00;
+  z-index: 2;
+  opacity: 0;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* ANIMASI BLINK */
+.thumb.blink-active::before {
+  animation: blinkAnimation 0.2s ease-in-out var(--blink-delay) forwards;
+}
+
+.thumb.blink-active img {
+  animation: imageReveal 0.2s ease-in-out var(--blink-delay) forwards;
+}
+
+/* ANIMASI SLIDE - PASTIKAN INI DIEKSEKUSI SETELAH BLINK */
+.thumb.slide-active {
+  animation: slideAnimation 0.8s cubic-bezier(0.7, 0, 0, 1) var(--slide-delay) forwards;
+}
+
+/* Keyframes untuk blink effect */
+@keyframes blinkAnimation {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  30% { opacity: 0; }
+  45% { opacity: 0; }
+  60% { opacity: 1; }
+  75% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes imageReveal {
+  0% { opacity: 0; }
+  15% { opacity: 0; }
+  30% { opacity: 1; }
+  45% { opacity: 0; }
+  60% { opacity: 0; }
+  75% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* SLIDE ANIMATION - HANYA TRANSFORM */
+@keyframes slideAnimation {
+  0% { 
+    transform: translateY(-100px);
+  }
+  100% { 
+    transform: translateY(0);
+  }
+}
+
+/* Hover effect */
+.thumb:hover img {
+  transform: scale(1.05);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.modal img {
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  opacity: 0;
+  position: relative;
+  z-index: 2;
+  object-fit: contain;
+}
+
+/* Orange overlay hanya di gambar */
+.modal-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ff9d00;
+  border-radius: 10px;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Modal Blink Animation */
+.modal.active .modal-overlay {
+  animation: orangeBlink 0.3s ease-in-out forwards;
+}
+
+.modal.active img {
+  animation: imageReveal 0.3s ease-in-out forwards;
+}
+
+/* Keyframes untuk blink warna orange */
+@keyframes orangeBlink {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  30% { opacity: 0; }
+  45% { opacity: 0; }
+  60% { opacity: 1; }
+  75% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Keyframes untuk reveal gambar */
+@keyframes imageReveal {
+  0% { opacity: 0; }
+  15% { opacity: 0; }
+  30% { opacity: 1; }
+  45% { opacity: 0; }
+  60% { opacity: 0; }
+  75% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.5);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  z-index: 3;
+}
+
+.modal.active .close-btn {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.6s, background 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Fallback untuk browser yang tidak support backdrop-filter */
+@supports not (backdrop-filter: blur(15px)) {
+  .modal {
+    background: rgba(0, 0, 0, 0.95);
+  }
+}
+
+/* MEDIA QUERIES */
+/* EXTRA EXTRA LARGE SCREENS (4K+) */
+@media (min-width: 2000px) {
+  .gallery { columns: 8; }
+  .sidebar1 { width: 125px; }
+  .sidebar2 { width: 30px; }
+  .gallery-container { 
+    width: calc(101vw - 130px);
+    margin: 0 30px 0 100px;
+  }
+  .modal-content { max-width: 85vw; max-height: 85vh; }
+}
+
+/* EXTRA LARGE SCREENS (Desktop besar) */
+@media (max-width: 2000px) and (min-width: 1600px) {
+  .gallery { columns: 7; }
+  .sidebar1 { width: 115px; }
+  .sidebar2 { width: 25px; }
+  .gallery-container { 
+    width: calc(101vw - 115px);
+    margin: 0 25px 0 90px;
+  }
+  .modal-content { max-width: 85vw; max-height: 85vh; }
+}
+
+/* LARGE SCREENS (Desktop standar) */
+@media (max-width: 1600px) and (min-width: 1200px) {
+  .gallery { columns: 6; }
+  .sidebar1 { width: 105px; }
+  .sidebar2 { width: 20px; }
+  .gallery-container { 
+    width: calc(101vw - 100px);
+    margin: 0 20px 0 80px;
+  }
+  .modal-content { max-width: 88vw; max-height: 88vh; }
+}
+
+/* MEDIUM SCREENS (Laptop kecil) */
+@media (max-width: 1200px) and (min-width: 992px) {
+  .gallery { columns: 5; }
+  .sidebar1 { width: 90px; }
+  .sidebar2 { width: 15px; }
+  .gallery-container { 
+    width: calc(101vw - 85px);
+    margin: 0 15px 0 70px;
+  }
+  .modal-content { max-width: 90vw; max-height: 90vh; }
+}
+
+/* SMALL SCREENS (Tablet landscape) */
+@media (max-width: 992px) and (min-width: 768px) {
+  .gallery { columns: 4; }
+  .sidebar1 { width: 80px; }
+  .sidebar2 { width: 10px; }
+  .gallery-container { 
+    width: calc(100.5vw - 70px);
+    margin: 0 10px 0 60px;
+  }
+  .modal { padding: 15px; }
+  .modal-content { max-width: 92vw; max-height: 92vh; }
+  .close-btn { top: 15px; right: 15px; }
+}
+
+/* MOBILE LARGE (Tablet portrait) */
+@media (max-width: 768px) and (min-width: 576px) {
+  .sidebar1, .sidebar2 { display: none; }
+  .gallery { columns: 3; }
+  .gallery-container { 
+    width: 99vw;
+    margin: 0;
+    padding: 12px;
+  }
+  .custom-scrollbar { width: 6px; right: 2px; }
+  .modal { padding: 12px; }
+  .modal-content { max-width: 95vw; max-height: 95vh; }
+  .close-btn { 
+    top: 12px; 
+    right: 12px; 
+    width: 35px; 
+    height: 35px; 
+    font-size: 25px; 
+  }
+}
+
+/* MOBILE MEDIUM (HP besar) */
+@media (max-width: 576px) and (min-width: 400px) {
+  .sidebar1, .sidebar2 { display: none; }
+  .gallery { columns: 3; }
+  .gallery-container { 
+    width: 99vw;
+    margin: 0;
+    padding: 10px;
+  }
+  .custom-scrollbar { width: 5px; right: 1px; }
+  .thumb { margin-bottom: 8px; }
+  .modal { padding: 10px; }
+  .modal-content { max-width: 95vw; max-height: 95vh; }
+  .close-btn { 
+    top: 10px; 
+    right: 10px; 
+    width: 32px; 
+    height: 32px; 
+    font-size: 22px; 
+  }
+}
+
+/* MOBILE SMALL (HP kecil) */
+@media (max-width: 400px) {
+  .sidebar1, .sidebar2 { display: none; }
+  .gallery { columns: 2; }
+  .gallery-container { 
+    width: 99vw;
+    margin: 0;
+    padding: 8px;
+  }
+  .custom-scrollbar { width: 4px; right: 1px; }
+  .thumb { margin-bottom: 6px; }
+  .thumb img { border-radius: 6px; }
+  .modal { padding: 8px; }
+  .modal-content { max-width: 98vw; max-height: 98vh; }
+  .modal img { border-radius: 8px; }
+  .close-btn { 
+    top: 8px; 
+    right: 8px; 
+    width: 30px; 
+    height: 30px; 
+    font-size: 20px; 
+  }
+}
+
+/* EXTRA SMALL (HP sangat kecil) */
+@media (max-width: 320px) {
+  .gallery { columns: 1; }
+  .gallery-container { padding: 6px; }
+  .thumb { margin-bottom: 4px; }
+  .thumb img { border-radius: 4px; }
+  .modal { padding: 5px; }
+  .modal-content { max-width: 99vw; max-height: 99vh; }
+  .modal img { border-radius: 6px; }
+  .close-btn { 
+    top: 5px; 
+    right: 5px; 
+    width: 28px; 
+    height: 28px; 
+    font-size: 18px; 
+  }
+}
