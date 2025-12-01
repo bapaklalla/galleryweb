@@ -8,6 +8,10 @@ const closeBtn = document.querySelector('.close-btn');
 let customScrollbar, scrollbarTrack, scrollbarThumb;
 let isDragging = false;
 
+// Loading Screen Elements
+const loadingScreen = document.getElementById('loading-screen');
+const loadingVideo = document.querySelector('.loading-video');
+
 // Animasi masuk
 function initializeAnimations() {
   const thumbPositions = Array.from(thumbs).map(thumb => {
@@ -192,6 +196,80 @@ function createCustomScrollbar() {
   });
 }
 
+// Loading Screen Functions
+function initLoadingScreen() {
+  if (!loadingScreen) return;
+  
+  // Coba play video loading
+  if (loadingVideo && loadingVideo.tagName === 'VIDEO') {
+    const playPromise = loadingVideo.play();
+    
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Kalo autoplay diblok, show fallback spinner
+        const fallback = loadingVideo.querySelector('.loading-fallback');
+        if (fallback) {
+          loadingVideo.style.display = 'none';
+          fallback.style.display = 'block';
+        }
+      });
+    }
+  }
+  
+  // Tunggu semua gambar thumbnail load
+  const thumbImages = document.querySelectorAll('.thumb img');
+  const totalImages = thumbImages.length;
+  let loadedImages = 0;
+  
+  // Fungsi cek gambar yang sudah load
+  function checkImageLoad() {
+    thumbImages.forEach(img => {
+      if (img.complete) {
+        loadedImages++;
+      } else {
+        img.addEventListener('load', () => {
+          loadedImages++;
+          if (loadedImages === totalImages) {
+            hideLoadingScreen();
+          }
+        });
+        
+        img.addEventListener('error', () => {
+          loadedImages++; // Skip error images
+          if (loadedImages === totalImages) {
+            hideLoadingScreen();
+          }
+        });
+      }
+    });
+    
+    // Jika semua gambar sudah load atau timeout
+    if (loadedImages === totalImages) {
+      hideLoadingScreen();
+    }
+  }
+  
+  // Backup timeout (max 3 detik)
+  setTimeout(hideLoadingScreen, 3000);
+  
+  // Start checking images
+  checkImageLoad();
+  
+  function hideLoadingScreen() {
+    loadingScreen.classList.add('fade-out');
+    
+    // Hapus dari DOM setelah animasi selesai
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+      
+      // Pause video untuk hemat resources
+      if (loadingVideo && loadingVideo.tagName === 'VIDEO') {
+        loadingVideo.pause();
+      }
+    }, 500);
+  }
+}
+
 // Event listeners
 function setupEventListeners() {
   thumbs.forEach(thumb => {
@@ -216,4 +294,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeAnimations();
   setupEventListeners();
   createCustomScrollbar();
+  initLoadingScreen();
 });
