@@ -35,7 +35,7 @@ Art communities can be… sensitive. Just saying.
 
 ## 📁 Project Structure
 
-<img width="1128" height="686" alt="image" src="https://github.com/user-attachments/assets/52f9580a-857a-4ca7-89bd-eacd50e2fb96" />
+<img width="1137" height="689" alt="image" src="https://github.com/user-attachments/assets/0b525824-ff4c-4642-99f3-8cfc24929a40" />
 
 ---
 
