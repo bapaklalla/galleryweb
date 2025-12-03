@@ -2,10 +2,12 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE 10+ */
-  user-select: none; /* Standard syntax */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 html, body {
@@ -51,7 +53,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 50px; /* Sesuaikan tinggi header */
+  height: 50px;
   z-index: 2;
   pointer-events: none;
   opacity: 0;
@@ -211,7 +213,6 @@ body {
   transform: scale(1.05);
 }
 
-/* MODAL STYLES - DENGAN CLIP-PATH */
 .modal {
   position: fixed;
   top: 0;
@@ -246,7 +247,6 @@ body {
   align-items: center;
 }
 
-/* CONTAINER UNTUK GAMBAR DAN ORANGE LAYER */
 .modal-image-container {
   position: relative;
   display: inline-block;
@@ -254,7 +254,6 @@ body {
   max-height: 100vh;
 }
 
-/* ORANGE LAYER DENGAN CLIP-PATH */
 .modal-orange-layer {
   position: absolute;
   top: 0;
@@ -266,13 +265,11 @@ body {
   opacity: 0;
   pointer-events: none;
   
-  /* CLIP-PATH SAMA DENGAN GAMBAR */
   clip-path: inset(0 round 10px);
   -webkit-clip-path: inset(0 round 10px);
   border-radius: 10px;
 }
 
-/* GAMBAR ASLI */
 #preview-img {
   position: relative;
   z-index: 2;
@@ -283,55 +280,47 @@ body {
   object-fit: contain;
   opacity: 0;
   transform: translateY(30px);
-  pointer-events: none; /* ⬅ INI PENTING */
+  pointer-events: none;
   cursor: default;
-  /* PREVENT ZOOM */
+  
   touch-action: none;
   -webkit-user-drag: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ANIMASI BLINK UNTUK ORANGE LAYER */
 @keyframes orangeClipBlink {
-  /* 0-24%: opacity 0 */
   0%, 24.999% { 
     opacity: 0;
     transform: translateY(30px);
   }
   
-  /* 25-49%: opacity 0.9 (INSTANT di 25%) */
   25%, 49.999% { 
     opacity: 0.9;
     transform: translateY(30px);
   }
   
-  /* 50-74%: opacity 0.4 (INSTANT di 50%) */
   50%, 74.999% { 
     opacity: 0.4;
     transform: translateY(30px);
   }
-  
-  /* 75-99%: opacity 0.9 (INSTANT di 75%) */
+
   75%, 99.999% { 
     opacity: 0.9;
     transform: translateY(30px);
   }
   
-  /* 100%: opacity 0 (INSTANT di 100%) */
   100% { 
     opacity: 0;
     transform: translateY(30px);
   }
 }
 
-/* ANIMASI SLIDE */
 @keyframes imageSlideUp {
   0% { transform: translateY(30px); }
   100% { transform: translateY(0); }
 }
 
-/* FIX: Close button di samping gambar */
 .modal-content {
   display: flex;
   align-items: flex-start;
@@ -429,7 +418,6 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Responsive Styles - DENGAN CLIP-PATH UPDATE */
 @media (max-width: 768px) {
   .loading-animation-container {
     bottom: 30px;
@@ -444,9 +432,8 @@ body {
     opacity: 1;
   }
   
-  /* Atur padding untuk konten gallery agar tidak tertutup header */
   .gallery-container {
-    padding-top: 60px; /* Header height + sedikit margin */
+    padding-top: 60px;
   }
 }
 
@@ -565,7 +552,7 @@ body {
   .mobile-header {
     display: block;
     opacity: 1;
-    height: 45px; /* Sedikit lebih kecil untuk mobile kecil */
+    height: 45px;
   }
   
   .gallery-container {
@@ -597,7 +584,7 @@ body {
   .mobile-header {
     display: block;
     opacity: 1;
-    height: 45px; /* Sedikit lebih kecil untuk mobile kecil */
+    height: 45px;
   }
   
   .gallery-container {
@@ -639,7 +626,7 @@ body {
   .mobile-header {
     display: block;
     opacity: 1;
-    height: 45px; /* Sedikit lebih kecil untuk mobile kecil */
+    height: 45px; 
   }
   
   .gallery-container {
