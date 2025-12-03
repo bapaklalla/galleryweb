@@ -1,4 +1,4 @@
-// Elements
+
 const thumbs = document.querySelectorAll('.thumb');
 const modal = document.getElementById('preview-modal');
 const modalImg = document.getElementById('preview-img');
@@ -10,12 +10,10 @@ let modalTimeout;
 
 document.addEventListener("contextmenu", e => e.preventDefault());
 
-// EASY SETTING - UBAH AJA INI
-let BLINK = 200;     // ms - durasi blink
-let SLIDE = 400;     // ms - durasi slide  
-let EASING = "cubic-bezier(0.4, 0, 0, 1)"; // easing
+let BLINK = 200;
+let SLIDE = 400;
+let EASING = "cubic-bezier(0.4, 0, 0, 1)";
 
-// Loading Screen
 function initLoadingScreen() {
   const loadingScreen = document.getElementById('loading-screen');
   if (!loadingScreen) return;
@@ -42,7 +40,6 @@ function initLoadingScreen() {
   }, 1000);
 }
 
-// Animasi thumbnail
 function initializeAnimations() {
   const thumbPositions = Array.from(thumbs).map(thumb => {
     const rect = thumb.getBoundingClientRect();
@@ -69,7 +66,6 @@ function initializeAnimations() {
   }, 5);
 }
 
-// Hover effect
 function handleMouseMove(e) {
   const mouseX = e.clientX;
   const mouseY = e.clientY;
@@ -95,12 +91,10 @@ function handleMouseMove(e) {
   });
 }
 
-// Modal dengan CLIP-PATH ORANGE LAYER
 function openModal(thumb) {
   const imgSrc = thumb.querySelector('img').src;
   modalImg.src = imgSrc;
   
-  // Dapatkan atau buat orange layer
   let orangeLayer = document.querySelector('.modal-orange-layer');
   if (!orangeLayer) {
     orangeLayer = document.createElement('div');
@@ -110,7 +104,6 @@ function openModal(thumb) {
   
   const container = document.querySelector('.modal-image-container');
   
-  // RESET
   modal.classList.remove('active');
   modalImg.style.animation = 'none';
   modalImg.style.opacity = '0';
@@ -121,35 +114,27 @@ function openModal(thumb) {
   closeBtn.style.opacity = '0';
   closeBtn.style.transform = 'translateY(10px)';
   
-  // Reset container size
   container.style.width = 'auto';
   container.style.height = 'auto';
   
   modalImg.onload = function() {
-    // Set container size = image size
     const imgRect = modalImg.getBoundingClientRect();
     container.style.width = imgRect.width + 'px';
     container.style.height = imgRect.height + 'px';
     
-    // Trigger reflow
     void modal.offsetWidth;
     void orangeLayer.offsetWidth;
     
-    // Tampilkan modal
     modal.classList.add('active');
     
-    // Gambar muncul
     modalImg.style.opacity = '1';
     
-    // 1. ORANGE LAYER BLINK (CLIP-PATH)
     orangeLayer.style.animation = `orangeClipBlink ${BLINK}ms ease-in-out forwards`;
     
-    // 2. SETELAH BLINK, SLIDE GAMBAR & ORANGE LAYER BERSAMA
     setTimeout(() => {
       modalImg.style.animation = `imageSlideUp ${SLIDE}ms ${EASING} forwards`;
       orangeLayer.style.animation = `imageSlideUp ${SLIDE}ms ${EASING} forwards`;
       
-      // 3. CLOSE BUTTON
       setTimeout(() => {
         closeBtn.style.opacity = '1';
         closeBtn.style.transform = 'translateY(0)';
@@ -162,7 +147,6 @@ function openModal(thumb) {
 function closeModal() {
   const orangeLayer = document.querySelector('.modal-orange-layer');
   
-  // Reset semua
   modalImg.style.animation = 'none';
   modalImg.style.opacity = '0';
   modalImg.style.transform = 'translateY(30px)';
@@ -179,7 +163,6 @@ function closeModal() {
   modal.classList.remove('active');
 }
 
-// Block zoom pada gambar
 function blockImageZoom() {
   if (!modalImg) return;
   
@@ -189,7 +172,6 @@ function blockImageZoom() {
     return false;
   };
   
-  // Block zoom events
   modalImg.addEventListener('wheel', blockEvent, { passive: false });
   modalImg.addEventListener('mousewheel', blockEvent, { passive: false });
   modalImg.addEventListener('dblclick', blockEvent, { passive: false });
@@ -218,16 +200,13 @@ function createCustomScrollbar() {
   function setScrollbarPosition() {
     const containerRect = container.getBoundingClientRect();
     
-    // TAMBAHIN INI: Hitung tinggi header mobile kalau ada
     let headerHeight = 0;
     if (mobileHeader && window.getComputedStyle(mobileHeader).display !== 'none') {
       headerHeight = mobileHeader.offsetHeight;
     }
     
-    // POSISI SCROLLBAR MULAI DARI BAWAH HEADER
     customScrollbar.style.top = (containerRect.top + headerHeight) + 'px';
     
-    // TINGGI SCROLLBAR DIKURANGI HEADER
     customScrollbar.style.height = (containerRect.height - headerHeight) + 'px';
     scrollbarTrack.style.height = (containerRect.height - headerHeight) + 'px';
   }
@@ -295,7 +274,6 @@ function createCustomScrollbar() {
   });
 }
 
-// Event listeners
 function setupEventListeners() {
   thumbs.forEach(thumb => {
     thumb.addEventListener('click', () => openModal(thumb));
@@ -303,14 +281,11 @@ function setupEventListeners() {
 
   closeBtn.addEventListener('click', closeModal);
   
-  // Close modal when clicking outside
   modal.addEventListener('click', (e) => {
-    // Cek jika klik di area yang BUKAN bagian dari konten modal
     const isClickOnModalBackground = 
       e.target.classList.contains('modal') || 
       e.target.classList.contains('modal-content-wrapper');
   
-    // Atau cara lain: cek jika klik BUKAN di image container atau close button
     const isClickOnImageArea = 
       e.target.closest('.modal-image-container') ||
       e.target.closest('.modal-content') ||
@@ -322,7 +297,6 @@ function setupEventListeners() {
     }
   });
 
-  // Block zoom
   blockImageZoom();
 
   document.addEventListener('keydown', (e) => {
@@ -332,7 +306,6 @@ function setupEventListeners() {
   window.addEventListener('mousemove', handleMouseMove);
 }
 
-// Init
 document.addEventListener('DOMContentLoaded', () => {
   initLoadingScreen();
   setupEventListeners();
