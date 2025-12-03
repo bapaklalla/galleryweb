@@ -1,5 +1,3 @@
-<img width="3000" height="1000" alt="bloom" src="https://github.com/user-attachments/assets/4a1b2167-fb43-4da0-8c0b-a8a3bd22720c" /># WebGallery — a free-ish gallery template
-
 So yeah, this is a simple web gallery template.  
 You can use it, edit it, break it, rebuild it — whatever.  
 It’s basically free for everyone.
