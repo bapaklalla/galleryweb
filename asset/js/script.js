@@ -16,28 +16,137 @@ let EASING = "cubic-bezier(0.4, 0, 0, 1)";
 
 function initLoadingScreen() {
   const loadingScreen = document.getElementById('loading-screen');
+  const progressBar = document.querySelector('.loading-progress');
+  const percentageText = document.querySelector('.loading-percentage');
+  
   if (!loadingScreen) return;
   
-  const loadingVideo = document.querySelector('.loading-video');
-  if (loadingVideo && loadingVideo.tagName === 'VIDEO') {
-    loadingVideo.play().catch(() => {
-      const fallback = document.querySelector('.loading-fallback');
-      if (fallback) {
-        loadingVideo.style.display = 'none';
-        fallback.style.display = 'block';
-      }
-    });
-  }
-  
-  setTimeout(() => {
+  let totalAssets = 0;
+  let loadedAssets = 0;
+  let isComplete = false;
+
+  // Fungsi untuk menyembunyikan loading screen
+  function hideLoadingScreen() {
+    if (isComplete) return;
+    
+    isComplete = true;
     loadingScreen.classList.add('fade-out');
-    if (loadingVideo && loadingVideo.pause) loadingVideo.pause();
+    
+    // Pause semua video loading
+    document.querySelectorAll('.loading-video').forEach(video => {
+      if (video.pause) video.pause();
+    });
     
     setTimeout(() => {
       loadingScreen.style.display = 'none';
       initializeAnimations();
-    }, 0);
-  }, 10000);
+    }, 500);
+  }
+
+  // Fungsi update progress
+  function updateProgress() {
+    loadedAssets++;
+    
+    // Hitung persentase (pastikan tidak lebih dari 100%)
+    const progress = Math.min(Math.round((loadedAssets / totalAssets) * 100), 100);
+    
+    // Update progress bar
+    if (progressBar) {
+      progressBar.style.width = `${progress}%`;
+    }
+    
+    // Update teks persentase
+    if (percentageText) {
+      percentageText.textContent = `${progress}%`;
+    }
+    
+    // Jika semua asset terload
+    if (loadedAssets >= totalAssets && totalAssets > 0) {
+      setTimeout(hideLoadingScreen, 1000);
+    }
+  }
+
+  // Fungsi untuk melacak loading images
+  function trackImages() {
+    const images = document.querySelectorAll('img');
+    totalAssets += images.length;
+    
+    images.forEach(img => {
+      if (img.complete) {
+        loadedAssets++;
+      } else {
+        img.addEventListener('load', updateProgress);
+        img.addEventListener('error', updateProgress);
+      }
+    });
+  }
+
+  // Fungsi untuk melacak loading videos
+  function trackVideos() {
+    const videos = document.querySelectorAll('video');
+    totalAssets += videos.length;
+    
+    videos.forEach(video => {
+      if (video.readyState >= 4) { // HAVE_ENOUGH_DATA
+        loadedAssets++;
+      } else {
+        video.addEventListener('loadeddata', updateProgress);
+        video.addEventListener('error', updateProgress);
+      }
+      
+      // Auto play video loading jika ada
+      if (video.classList.contains('loading-video')) {
+        video.play().catch(() => {
+          const fallback = document.querySelector('.loading-fallback');
+          if (fallback) {
+            video.style.display = 'none';
+            fallback.style.display = 'block';
+          }
+        });
+      }
+    });
+  }
+
+  // Fungsi untuk melacak loading fonts
+  function trackFonts() {
+    totalAssets++;
+    document.fonts.ready
+      .then(updateProgress)
+      .catch(() => {
+        loadedAssets++;
+        updateProgress();
+      });
+  }
+
+  // Fungsi utama untuk menghitung dan melacak semua asset
+  function countAndTrackAssets() {
+    // Reset counters
+    totalAssets = 0;
+    loadedAssets = 0;
+    
+    // Lacak semua jenis asset
+    trackImages();
+    trackVideos();
+    trackFonts();
+    
+    // Jika tidak ada asset, langsung hide setelah delay
+    if (totalAssets === 0) {
+      setTimeout(hideLoadingScreen, 2000);
+    } else {
+      // Update progress awal
+      updateProgress();
+    }
+  }
+
+  // Mulai tracking ketika DOM siap
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', countAndTrackAssets);
+  } else {
+    countAndTrackAssets();
+  }
+  
+  // Fallback timeout (safety net)
+  setTimeout(hideLoadingScreen, 10000);
 }
 
 function initializeAnimations() {
