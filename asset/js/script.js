@@ -37,7 +37,7 @@ function initLoadingScreen() {
       loadingScreen.style.display = 'none';
       initializeAnimations();
     }, 0);
-  }, 1000);
+  }, 3500);
 }
 
 function initializeAnimations() {
