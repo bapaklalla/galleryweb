@@ -37,7 +37,28 @@ Art communities can be… sensitive. Just saying.
 
 ## 📁 Project Structure
 
-(put your final structure here, or leave it blank, I won’t judge)
+webgallery/
+│
+├── index.html               <------------ find <div class="gallery"> and edit <div class="thumb"><img src="image-gallery/YOUR-ART" alt="Gallery image"></div>
+├── README.md
+│
+├── /assets
+│   ├── /svg
+│   ├── header.svg
+│   ├── bg.svg
+│   └── anything-else.svg
+│ 
+├── /css
+│   └── style.css
+│
+├── /js
+│   └── script.js
+│
+└── /image-gallery            <------------ put your image here
+    ├── your-art-01.avif
+    ├── your-art-02.avif
+    └── …
+
 
 ---
 
