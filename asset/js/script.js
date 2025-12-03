@@ -25,14 +25,12 @@ function initLoadingScreen() {
   let loadedAssets = 0;
   let isComplete = false;
 
-  // Fungsi untuk menyembunyikan loading screen
   function hideLoadingScreen() {
     if (isComplete) return;
     
     isComplete = true;
     loadingScreen.classList.add('fade-out');
     
-    // Pause semua video loading
     document.querySelectorAll('.loading-video').forEach(video => {
       if (video.pause) video.pause();
     });
@@ -40,33 +38,27 @@ function initLoadingScreen() {
     setTimeout(() => {
       loadingScreen.style.display = 'none';
       initializeAnimations();
-    }, 500);
+    }, 50);
   }
 
-  // Fungsi update progress
   function updateProgress() {
     loadedAssets++;
     
-    // Hitung persentase (pastikan tidak lebih dari 100%)
     const progress = Math.min(Math.round((loadedAssets / totalAssets) * 100), 100);
     
-    // Update progress bar
     if (progressBar) {
       progressBar.style.width = `${progress}%`;
     }
     
-    // Update teks persentase
     if (percentageText) {
       percentageText.textContent = `${progress}%`;
     }
     
-    // Jika semua asset terload
     if (loadedAssets >= totalAssets && totalAssets > 0) {
       setTimeout(hideLoadingScreen, 1000);
     }
   }
 
-  // Fungsi untuk melacak loading images
   function trackImages() {
     const images = document.querySelectorAll('img');
     totalAssets += images.length;
@@ -81,20 +73,18 @@ function initLoadingScreen() {
     });
   }
 
-  // Fungsi untuk melacak loading videos
   function trackVideos() {
     const videos = document.querySelectorAll('video');
     totalAssets += videos.length;
     
     videos.forEach(video => {
-      if (video.readyState >= 4) { // HAVE_ENOUGH_DATA
+      if (video.readyState >= 4) {
         loadedAssets++;
       } else {
         video.addEventListener('loadeddata', updateProgress);
         video.addEventListener('error', updateProgress);
       }
       
-      // Auto play video loading jika ada
       if (video.classList.contains('loading-video')) {
         video.play().catch(() => {
           const fallback = document.querySelector('.loading-fallback');
@@ -107,7 +97,6 @@ function initLoadingScreen() {
     });
   }
 
-  // Fungsi untuk melacak loading fonts
   function trackFonts() {
     totalAssets++;
     document.fonts.ready
@@ -118,22 +107,18 @@ function initLoadingScreen() {
       });
   }
 
-  // Fungsi utama untuk menghitung dan melacak semua asset
   function countAndTrackAssets() {
     // Reset counters
     totalAssets = 0;
     loadedAssets = 0;
     
-    // Lacak semua jenis asset
     trackImages();
     trackVideos();
     trackFonts();
     
-    // Jika tidak ada asset, langsung hide setelah delay
     if (totalAssets === 0) {
       setTimeout(hideLoadingScreen, 2000);
     } else {
-      // Update progress awal
       updateProgress();
     }
   }
@@ -145,7 +130,6 @@ function initLoadingScreen() {
     countAndTrackAssets();
   }
   
-  // Fallback timeout (safety net)
   setTimeout(hideLoadingScreen, 10000);
 }
 
