@@ -1,3 +1,5 @@
+<img width="680" height="439" alt="image" src="https://github.com/user-attachments/assets/e93654cc-533b-446c-a361-fa529f592136" />
+
 So yeah, this is a simple web gallery template.  
 You can use it, edit it, break it, rebuild it — whatever.  
 It’s basically free for everyone.
