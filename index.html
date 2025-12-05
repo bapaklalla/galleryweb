@@ -3,6 +3,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gallery Keyla Iyv</title>
+  <link rel="icon" type="image/svg+xml" href="asset/icons/logo.svg">
   <link rel="stylesheet" href="asset/css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,33 +23,44 @@
   </div>
 </div>
 
+<!-- Tambahkan kode ini di bawah <div id="loading-screen"> -->
 <div class="mobile-header">
   <object type="image/svg+xml" data="asset/svg/header.svg" width="100%" height="100%"></object>
 </div>
 
 <div class="sidebar1">
   <object type="image/svg+xml" data="asset/svg/sidebar.svg" width="100%" height="100%"></object>
-  <div class="sidebar2"></div>
 </div>
 
+
+<!-- HTML yang harus diubah: -->
 <div id="preview-modal" class="modal">
   <div class="modal-content-wrapper">
+    <!-- NAV BUTTONS DIPINDAHKAN KE SINI (tidak lagi di dalam .modal-image-container) -->
+    <button class="nav-btn prev-btn">
+      <img src="asset/svg/prev.svg" alt="Previous">
+    </button>
+
+    <button class="nav-btn next-btn">
+      <img src="asset/svg/next.svg" alt="Next">
+    </button>
+    
     <div class="modal-content">
       <div class="modal-image-container">
-        <div class="modal-overlay"></div>
         <img id="preview-img" src="" alt="Preview">
       </div>
-      <button class="close-btn">
-        <img src="asset/svg/Xboton.svg" alt="Close" class="close-icon">
-      </button>
     </div>
+
+    <!-- close tetap di wrapper agar tidak ikut resize gambar -->
+    <button class="close-btn">
+      <img src="asset/svg/Xboton.svg" alt="Close" class="close-icon">
+    </button>
   </div>
 </div>
 
 <div class="gallery-wrapper">
   <div class="gallery-container">
     <div class="gallery">
-      <div class="thumb"><img src="asset/image-gallery/your-art.avif" alt="Gallery image"></div>
       <div class="thumb"><img src="https://i.pinimg.com/736x/b4/2e/db/b42edbc7fadb57b3675135f0a76ce8f7.jpg" alt="Gallery image"></div>
       <div class="thumb"><img src="https://i.pinimg.com/1200x/46/37/c1/4637c1088acc7c4cd0bc2c2b962e4215.jpg" alt="Gallery image"></div>
       <div class="thumb"><img src="https://i.pinimg.com/1200x/a5/76/6f/a5766fabeed13acdab819dc0afb72add.jpg" alt="Gallery image"></div>
@@ -77,6 +89,7 @@
       <div class="thumb"><img src="https://i.pinimg.com/736x/16/22/e5/1622e58e64a7a36013640362f5899113.jpg" alt="Gallery image"></div>
       <div class="thumb"><img src="https://i.pinimg.com/736x/7f/2f/b4/7f2fb48e93271c48e5f629a6c670fb4c.jpg" alt="Gallery image"></div>
       <div class="thumb"><img src="https://i.pinimg.com/736x/e9/dc/e0/e9dce0933100fcdc0fd1732d1137541a.jpg" alt="Gallery image"></div>
+
     </div>
   </div>
 </div>
