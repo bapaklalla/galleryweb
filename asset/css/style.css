@@ -452,7 +452,7 @@ body {
   .sidebar1, .sidebar2 { display: none; }
   .gallery-container { width: 100vw; margin-left: 0; padding: 12px; }
   .gallery { columns: 3; column-gap: 10px; }
-  .prev-btn, .next-btn { width: 44px; height: 44px; left: 12px; right: 12px; }
+  .prev-btn, .next-btn { display: none; }
   .modal { padding: 12px; }
   .modal-image-container { max-height: calc(100vh - 100px); }
   .custom-scrollbar { display: none !important; }
@@ -460,7 +460,7 @@ body {
 
 @media (max-width: 576px) {
   .gallery { columns: 2; }
-  .prev-btn, .next-btn { width: 40px; height: 40px; left: 8px; right: 8px; }
+  .prev-btn, .next-btn { display: none; }
   .modal-image-container { max-height: calc(100vh - 90px); }
 }
 
