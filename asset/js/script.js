@@ -613,43 +613,148 @@ function handleKeyboardNavigation(e) {
   }
 }
 
-// Touch swipe for mobile - IMPROVED VERSION
+// ============================================
+// 🎯 BAGIAN YANG DIUBAH: SWIPE ATAS-BAWAH 🎯
+// ============================================
+
+// Touch swipe for mobile - VERTICAL SWIPE VERSION (ATAS-BAWAH)
 function setupTouchSwipe() {
-  let touchStartX = 0;
-  let touchEndX = 0;
   let touchStartY = 0;
   let touchEndY = 0;
-  const SWIPE_THRESHOLD = 50;
-  const VERTICAL_THRESHOLD = 30;
+  const SWIPE_THRESHOLD = 50; // Minimal swipe 50px
   
   modal.addEventListener('touchstart', (e) => {
     if (!modal.classList.contains('active') || isAnimating) return;
     
-    touchStartX = e.changedTouches[0].screenX;
     touchStartY = e.changedTouches[0].screenY;
   }, { passive: true });
   
   modal.addEventListener('touchend', (e) => {
     if (!modal.classList.contains('active') || isAnimating) return;
     
-    touchEndX = e.changedTouches[0].screenX;
     touchEndY = e.changedTouches[0].screenY;
-    
-    const diffX = touchStartX - touchEndX;
     const diffY = touchStartY - touchEndY;
     
-    // Only process horizontal swipes, ignore vertical scrolls
-    if (Math.abs(diffY) > Math.abs(diffX) &&
-        Math.abs(diffY) > SWIPE_THRESHOLD &&
-        Math.abs(diffX) < HORIZONTAL_THRESHOLD) {
-      
+    // Cek apakah swipe cukup jauh
+    if (Math.abs(diffY) > SWIPE_THRESHOLD) {
       if (diffY > 0) {
-        nextImage(); // Swipe left -> next
+        // Swipe UP (jari dari bawah ke atas) → NEXT image
+        nextImage();
       } else {
-        prevImage(); // Swipe right -> prev
+        // Swipe DOWN (jari dari atas ke bawah) → PREV image
+        prevImage();
       }
     }
   }, { passive: true });
+}
+
+// ============================================
+// 🎯 BAGIAN YANG DIUBAH: ANIMASI SWIPE ATAS-BAWAH 🎯
+// ============================================
+
+// Ganti fungsi nextImage() dan prevImage() dengan animasi vertikal
+async function nextImage() {
+  if (!modal.classList.contains('active')) return;
+  if (isAnimating) return;
+  
+  isAnimating = true;
+  
+  const nextIndex = (currentIndex + 1) % allImages.length;
+  
+  if (!allImages[nextIndex]) {
+    isAnimating = false;
+    return;
+  }
+  
+  try {
+    // Reset dan tambah animasi
+    previewImg.style.animation = 'none';
+    previewImg.style.opacity = '0';
+    previewImg.style.transform = 'translateY(30px)';
+    
+    // Tunggu sebentar untuk reset
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
+    // Ganti gambar
+    previewImg.src = allImages[nextIndex].src;
+    
+    // Tunggu gambar load
+    if (!previewImg.complete) {
+      await new Promise(resolve => {
+        previewImg.onload = resolve;
+        previewImg.onerror = resolve;
+      });
+    }
+    
+    // Animasi swipe up
+    previewImg.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+    previewImg.style.opacity = '1';
+    previewImg.style.transform = 'translateY(0)';
+    
+    currentIndex = nextIndex;
+    
+    // Reset setelah animasi
+    setTimeout(() => {
+      previewImg.style.transition = '';
+      isAnimating = false;
+    }, 300);
+    
+  } catch (error) {
+    console.error('Error in nextImage:', error);
+    isAnimating = false;
+  }
+}
+
+async function prevImage() {
+  if (!modal.classList.contains('active')) return;
+  if (isAnimating) return;
+  
+  isAnimating = true;
+  
+  const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+  
+  if (!allImages[prevIndex]) {
+    isAnimating = false;
+    return;
+  }
+  
+  try {
+    // Reset dan tambah animasi
+    previewImg.style.animation = 'none';
+    previewImg.style.opacity = '0';
+    previewImg.style.transform = 'translateY(-30px)';
+    
+    // Tunggu sebentar untuk reset
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
+    // Ganti gambar
+    previewImg.src = allImages[prevIndex].src;
+    
+    // Tunggu gambar load
+    if (!previewImg.complete) {
+      await new Promise(resolve => {
+        previewImg.onload = resolve;
+        previewImg.onerror = resolve;
+      });
+    }
+    
+    // Animasi swipe down
+    previewImg.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+    previewImg.style.opacity = '1';
+    previewImg.style.transform = 'translateY(0)';
+    
+    currentIndex = prevIndex;
+    
+    // Reset setelah animasi
+    setTimeout(() => {
+      previewImg.style.transition = '';
+      isAnimating = false;
+    }, 300);
+    
+  } catch (error) {
+    console.error('Error in prevImage:', error);
+    isAnimating = false;
+  }
 }
 
 // Create custom scrollbar - FIXED VERSION
@@ -799,7 +904,7 @@ function setupAdditionalEventListeners() {
 
   setupZoomPrevention();
   document.addEventListener('keydown', handleKeyboardNavigation);
-  setupTouchSwipe();
+  setupTouchSwipe(); // 🎯 Ini sudah pakai swipe atas-bawah
   window.addEventListener('mousemove', handleMouseMove);
   
   // Event delegation for dynamically created buttons
