@@ -1,30 +1,132 @@
-// Elements
-const thumbs = document.querySelectorAll('.thumb');
-const modal = document.getElementById('preview-modal');
-const modalImg = document.getElementById('preview-img');
-const closeBtn = document.querySelector('.close-btn');
+// ================================================
+// ===============  GALLERY SYSTEM  ===============
+// ================================================
 
-// Variabel untuk tombol navigasi
-let prevBtn = null;
-let nextBtn = null;
+// Ambil elemen-elemen dasar
+const modal = document.getElementById("preview-modal");
+const modalBg = document.querySelector(".modal-bg-layer");
+const closeBtn = document.querySelector(".close-btn");
+const previewImg = document.getElementById("preview-img");
 
+const thumbs = document.querySelectorAll(".thumb img");
+const nextBtn = document.querySelector(".next-btn");
+const prevBtn = document.querySelector(".prev-btn");
+
+let currentIndex = 0;
+let modalIsOpen = false;
+
+// ============================================================
+// =============   BACK BUTTON SYSTEM (HP)   ==================
+// ============================================================
+
+// Ketika modal dibuka → dorong 1 state ke history
+function registerModalState() {
+    if (!modalIsOpen) {
+        history.pushState({ modalOpen: true }, "");
+        modalIsOpen = true;
+    }
+}
+
+// Ketika user menutup modal manual → panggil back()
+function closeModalState() {
+    if (modalIsOpen) {
+        history.back();  // biar popstate yang nutup modal
+    }
+}
+
+// Tombol HP Back
+window.addEventListener("popstate", () => {
+    if (modalIsOpen) {
+        closeModal();
+    }
+});
+
+// ============================================================
+// ================   OPEN & CLOSE MODAL   ====================
+// ============================================================
+
+function openModal(index) {
+    currentIndex = index;
+    const src = thumbs[currentIndex].src;
+
+    previewImg.src = src;
+
+    modal.classList.add("active");
+    modal.classList.add("show");
+
+    registerModalState();
+}
+
+function closeModal() {
+    modal.classList.remove("active");
+    modal.classList.remove("show");
+
+    modalIsOpen = false;
+}
+
+// ============================================================
+// ======================  THUMBS   ===========================
+// ============================================================
+
+thumbs.forEach((thumb, index) => {
+    thumb.addEventListener("click", () => {
+        openModal(index);
+    });
+});
+
+// ============================================================
+// ===================== NEXT / PREV ==========================
+// ============================================================
+
+function showNext() {
+    currentIndex = (currentIndex + 1) % thumbs.length;
+    previewImg.src = thumbs[currentIndex].src;
+}
+
+function showPrev() {
+    currentIndex = (currentIndex - 1 + thumbs.length) % thumbs.length;
+    previewImg.src = thumbs[currentIndex].src;
+}
+
+nextBtn.addEventListener("click", showNext);
+prevBtn.addEventListener("click", showPrev);
+
+// ============================================================
+// ================= CLOSE INTERACTIONS =======================
+// ============================================================
+
+// Klik background
+modalBg.addEventListener("click", closeModalState);
+
+// Tombol X
+closeBtn.addEventListener("click", closeModalState);
+
+// ============================================
+// LOVE YOU KEYLA – modal now perfect 💅🔥
+// ============================================
+
+// ============================================
+// FITUR TAMBAHAN DARI KODE KEDUA
+// ============================================
+
+// Elements tambahan
+const thumbContainers = document.querySelectorAll('.thumb');
 let customScrollbar, scrollbarTrack, scrollbarThumb;
 let isDragging = false;
-let modalTimeout;
 let isAnimating = false;
-
-// EASY SETTING - UBAH AJA INI
-let BLINK =1;     // ms - durasi blink
-let SLIDE = 100;     // ms - durasi slide  
-let EASING = "cubic-bezier(0.4, 0, 0, 1)"; // easing
-let CLOSE_DELAY = 0;
-
-// Variables for image navigation
-let currentImageIndex = 0;
 let allImages = [];
+let resizeTimeout = null;
 
+// Settings
+const BLINK = 0;     // ms - blink duration
+const SLIDE = 100;   // ms - slide duration  
+const EASING = "cubic-bezier(0.9, 0, 0, 1)"; // easing
+const CLOSE_DELAY = 0;
+
+// Prevent right-click
 document.addEventListener("contextmenu", e => e.preventDefault());
 
+// Initialize loading screen
 function initLoadingScreen() {
   const loadingScreen = document.getElementById('loading-screen');
   const progressBar = document.querySelector('.loading-progress');
@@ -143,10 +245,9 @@ function initLoadingScreen() {
   setTimeout(hideLoadingScreen, 10000);
 }
 
-// Initialize image array for navigation
+// Initialize image array
 function initImageArray() {
-  console.log('Initializing image array...');
-  allImages = Array.from(thumbs).map(thumb => {
+  allImages = Array.from(thumbContainers).map(thumb => {
     const img = thumb.querySelector('img');
     return {
       src: img.src,
@@ -154,11 +255,11 @@ function initImageArray() {
       title: img.alt || ''
     };
   });
-  console.log('Total images found:', allImages.length);
 }
 
+// Initialize animations
 function initializeAnimations() {
-  const thumbPositions = Array.from(thumbs).map(thumb => {
+  const thumbPositions = Array.from(thumbContainers).map(thumb => {
     const rect = thumb.getBoundingClientRect();
     return { element: thumb, left: rect.left, top: rect.top };
   });
@@ -183,11 +284,12 @@ function initializeAnimations() {
   }, 5);
 }
 
+// Mouse move effect
 function handleMouseMove(e) {
   const mouseX = e.clientX;
   const mouseY = e.clientY;
 
-  thumbs.forEach(thumb => {
+  thumbContainers.forEach(thumb => {
     const rect = thumb.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
@@ -208,370 +310,293 @@ function handleMouseMove(e) {
   });
 }
 
-// Function to find and setup navigation buttons
+// Setup navigation buttons - dengan kode asli tetap
 function findAndSetupNavButtons() {
-  console.log('Looking for navigation buttons...');
+  // Kode asli tetap ada
+  nextBtn.addEventListener("click", showNext);
+  prevBtn.addEventListener("click", showPrev);
   
-  // CARI TOMBOL DENGAN CLASS YANG BENAR
-  prevBtn = document.querySelector('.prev-btn');
-  nextBtn = document.querySelector('.next-btn');
+  // Tambahan untuk animasi
+  const existingPrevBtn = document.querySelector('.prev-btn');
+  const existingNextBtn = document.querySelector('.next-btn');
   
-  console.log('Found prev-btn:', prevBtn);
-  console.log('Found next-btn:', nextBtn);
-  
-  // Setup event listeners jika tombol ditemukan
-  if (prevBtn) {
-    console.log('Setting up prev button event listener');
-    // Hapus event listener lama jika ada
-    prevBtn.removeEventListener('click', handlePrevClick);
-    // Tambah event listener baru
-    prevBtn.addEventListener('click', handlePrevClick);
+  if (existingPrevBtn) {
+    existingPrevBtn.removeEventListener('click', handlePrevClick);
+    existingPrevBtn.addEventListener('click', handlePrevClick);
   }
   
-  if (nextBtn) {
-    console.log('Setting up next button event listener');
-    // Hapus event listener lama jika ada
-    nextBtn.removeEventListener('click', handleNextClick);
-    // Tambah event listener baru
-    nextBtn.addEventListener('click', handleNextClick);
+  if (existingNextBtn) {
+    existingNextBtn.removeEventListener('click', handleNextClick);
+    existingNextBtn.addEventListener('click', handleNextClick);
   }
 }
 
-// Event handler untuk tombol
+// Navigation button handlers untuk animasi
 function handlePrevClick(e) {
-  console.log('PREV BUTTON CLICKED!');
   e.preventDefault();
   e.stopPropagation();
   prevImage();
 }
 
 function handleNextClick(e) {
-  console.log('NEXT BUTTON CLICKED!');
   e.preventDefault();
   e.stopPropagation();
   nextImage();
 }
 
-// ANIMASI GANTI GAMBAR: remove any closeBtn style changes
+// Image change animation - FIXED VERSION (untuk next/prev dengan animasi)
 function changeImageWithAnimation(newSrc) {
   return new Promise((resolve) => {
-    console.log('Starting image change animation...');
+    // ====== RESET SIZE ======
+    previewImg.style.width = 'auto';
+    previewImg.style.height = 'auto';
+    previewImg.style.maxWidth = '100%';
+    previewImg.style.maxHeight = '100%';
+    previewImg.style.position = 'static';
+    // ========================
     
-    const container = document.querySelector('.modal-image-container');
+    // Cleanup previous event listeners
+    previewImg.onload = null;
+    previewImg.onerror = null;
     
-    // 1. RESET ANIMASI SEBELUMNYA
-    modalImg.style.animation = 'none';
+    // Set initial state
+    previewImg.style.animation = 'none';
+    previewImg.style.opacity = '0';
+    previewImg.style.transform = 'translateY(5px)';
     
-    // 2. SET POSISI AWAL SAMA DENGAN BUKA MODAL - INCLUDE CLOSE BUTTON
-    modalImg.style.opacity = '0';
-    modalImg.style.transform = 'translateY(30px)';
-    
-    
-    // 3. GANTI SRC GAMBAR
-    modalImg.src = newSrc;
-    
-    // 4. TUNGGU GAMBAR LOAD
-    if (modalImg.complete && modalImg.naturalHeight > 0) {
-      animateImageIn();
-    } else {
-      modalImg.onload = animateImageIn;
-      modalImg.onerror = () => {
-        console.log('Error loading image');
-        modalImg.style.opacity = '1';
-        modalImg.style.transform = 'translateY(0)';
-        resolve();
-      };
+    // Define load handler
+    const loadHandler = () => {
+      // ====== RESET ULANG ======
+      previewImg.style.width = 'auto';
+      previewImg.style.height = 'auto';
+      previewImg.style.maxWidth = '100%';
+      previewImg.style.maxHeight = '100%';
+      // ========================
       
-      // Fallback timeout
+      if (modal) void modal.offsetWidth; // Trigger reflow
+      
+      previewImg.style.opacity = '1';
+      
       setTimeout(() => {
-        if (modalImg.complete) {
-          animateImageIn();
-        }
-      }, 200);
-    }
-    
-    function animateImageIn() {
-      console.log('New image loaded, animating in...');
-      
-      // Trigger reflow untuk restart animasi
-      if (modal) void modal.offsetWidth;
-      
-      // Gambar muncul
-      modalImg.style.opacity = '1';
-      
-      // SLIDE GAMBAR
-      setTimeout(() => {
-        modalImg.style.animation = `imageSlideUp ${SLIDE}ms ${EASING} forwards`;
+        previewImg.style.animation = `imageSlideUp ${SLIDE}ms ${EASING} forwards`;
         
-        
-        // RESET SETELAH ANIMASI SELESAI
         setTimeout(() => {
-          modalImg.style.animation = '';
-          modalImg.style.transform = 'translateY(0)';
-          console.log('Image change animation complete');
+          previewImg.style.animation = '';
+          previewImg.style.transform = 'translateY(0)';
+          
+          // Cleanup
+          previewImg.onload = null;
+          previewImg.onerror = null;
+          
           resolve();
         }, SLIDE);
-        
       }, BLINK);
+    };
+    
+    // Define error handler
+    const errorHandler = () => {
+      previewImg.style.opacity = '1';
+      previewImg.style.transform = 'translateY(0)';
+      resolve();
+    };
+    
+    // Set event listeners BEFORE setting src
+    previewImg.onload = loadHandler;
+    previewImg.onerror = errorHandler;
+    
+    // Now set the source
+    previewImg.src = newSrc;
+    
+    // If already loaded, trigger manually
+    if (previewImg.complete && previewImg.naturalHeight > 0) {
+      loadHandler();
     }
+    
+    // Fallback timeout
+    setTimeout(() => {
+      if (previewImg.src === newSrc && !previewImg.complete) {
+        errorHandler();
+      }
+    }, 5000);
   });
 }
 
-// Function to open modal with specific index
+// Open modal with specific index - FIXED VERSION (versi animasi)
 function openModalWithIndex(index) {
-  console.log('Opening modal with index:', index, 'Total images:', allImages.length);
-  
-  if (index < 0 || index >= allImages.length || isAnimating) {
-    console.log('Cannot open modal:', {index, isAnimating});
-    return;
-  }
+  if (index < 0 || index >= allImages.length || isAnimating) return;
   
   isAnimating = true;
-  currentImageIndex = index;
-  const imgSrc = allImages[currentImageIndex].src;
-  console.log('Setting image src:', imgSrc);
+  currentIndex = index;
+  const imgSrc = allImages[currentIndex].src;
   
-  // Cari dan setup tombol navigasi
   findAndSetupNavButtons();
   
-  const container = document.querySelector('.modal-image-container');
+  // ====== RESET SIZE SEBELUM APA-APA ======
+  previewImg.style.width = 'auto';
+  previewImg.style.height = 'auto';
+  previewImg.style.maxWidth = '100%';
+  previewImg.style.maxHeight = '100%';
+  previewImg.style.position = 'static'; // Reset if using absolute
+  previewImg.style.transform = 'none'; // Reset transforms
+  // ========================================
   
-  // RESET
+  // Reset state
   modal.classList.remove('active');
-  modalImg.style.animation = 'none';
-  modalImg.style.opacity = '0';
-  modalImg.style.transform = 'translateY(30px)';
+  previewImg.style.animation = 'none';
+  previewImg.style.opacity = '0';
+  previewImg.style.transform = 'translateY(-5px)';
   
-  // Reset container size
-  container.style.width = 'auto';
-  container.style.height = 'auto';
+  // Cleanup previous listeners
+  previewImg.onload = null;
+  previewImg.onerror = null;
   
-  // Hapus event listener sebelumnya jika ada
-  modalImg.onload = null;
-  
-  // Set event listener baru
-  modalImg.onload = function() {
-    console.log('Image loaded, showing modal');
-    
-    // Set container size = image size
-    const imgRect = modalImg.getBoundingClientRect();
-    container.style.width = imgRect.width + 'px';
-    container.style.height = imgRect.height + 'px';
+  // Define load handler
+  const loadHandler = () => {
+    // ====== RESET ULANG PAS GAMBAR SUDAH LOAD ======
+    previewImg.style.width = 'auto';
+    previewImg.style.height = 'auto';
+    previewImg.style.maxWidth = '100%';
+    previewImg.style.maxHeight = '100%';
+    // ================================================
     
     // Trigger reflow
     if (modal) void modal.offsetWidth;
     
-    // Tampilkan modal
+    // Show modal
     modal.classList.add('active');
+    modal.classList.add('show');
+    previewImg.style.opacity = '1';
     
-    // Gambar muncul
-    modalImg.style.opacity = '1';
+    // Register history state
+    registerModalState();
     
-    // SLIDE GAMBAR
+    // Animate image
     setTimeout(() => {
-      modalImg.style.animation = `imageSlideUp ${SLIDE}ms ${EASING} forwards`;
+      previewImg.style.animation = `imageSlideUp ${SLIDE}ms ${EASING} forwards`;
       
-      // removed: closeBtn show animation
       setTimeout(() => {
         isAnimating = false;
-        console.log('Animation complete');
       }, CLOSE_DELAY);
-            
     }, BLINK);
   };
   
-  // Set gambar
-  modalImg.src = imgSrc;
+  // Define error handler
+  const errorHandler = () => {
+    modal.classList.add('active');
+    modal.classList.add('show');
+    previewImg.style.opacity = '1';
+    previewImg.style.transform = 'translateY(0)';
+    registerModalState();
+    isAnimating = false;
+  };
   
-  // Fallback jika gambar sudah loaded
-  if (modalImg.complete) {
-    console.log('Image already loaded, triggering onload manually');
-    modalImg.onload();
+  // Set listeners BEFORE setting src
+  previewImg.onload = loadHandler;
+  previewImg.onerror = errorHandler;
+  
+  // Set image source
+  previewImg.src = imgSrc;
+  
+  // If already loaded, trigger manually
+  if (previewImg.complete && previewImg.naturalHeight > 0) {
+    loadHandler();
   }
 }
 
-// Original openModal function
-function openModal(thumb) {
-  console.log('Opening modal from thumb click');
-  const index = Array.from(thumbs).indexOf(thumb);
-  console.log('Found index:', index);
+// Open modal from thumbnail (versi animasi)
+function openModalFromThumb(thumb) {
+  const index = Array.from(thumbContainers).indexOf(thumb);
   if (index !== -1) {
     openModalWithIndex(index);
   }
 }
 
-// Navigate to next image - DENGAN ANIMASI SAMA DENGAN BUKA MODAL
+// Next image dengan animasi
 async function nextImage() {
-  console.log('=== NEXT IMAGE ===');
-  console.log('Current index:', currentImageIndex);
-  console.log('Total images:', allImages.length);
-  
-  if (!modal.classList.contains('active')) {
-    console.log('Modal not active');
-    return;
-  }
-  
-  if (isAnimating) {
-    console.log('Still animating...');
-    return;
-  }
+  if (!modal.classList.contains('active')) return;
+  if (isAnimating) return;
   
   isAnimating = true;
   
-  // Hitung index berikutnya
-  const nextIndex = (currentImageIndex + 1) % allImages.length;
-  console.log('Moving to index:', nextIndex);
+  const nextIndex = (currentIndex + 1) % allImages.length;
   
   if (!allImages[nextIndex]) {
-    console.log('No image at index:', nextIndex);
     isAnimating = false;
     return;
   }
   
   try {
-    // Animate image change dengan efek yang sama
     await changeImageWithAnimation(allImages[nextIndex].src);
-    
-    // Update current index
-    currentImageIndex = nextIndex;
-    
-    console.log('Next image shown successfully');
+    currentIndex = nextIndex;
   } catch (error) {
-    console.log('Error in nextImage:', error);
+    console.error('Error in nextImage:', error);
   } finally {
     isAnimating = false;
   }
 }
 
-// Navigate to previous image - DENGAN ANIMASI SAMA DENGAN BUKA MODAL
+// Previous image dengan animasi
 async function prevImage() {
-  console.log('=== PREV IMAGE ===');
-  console.log('Current index:', currentImageIndex);
-  console.log('Total images:', allImages.length);
-  
-  if (!modal.classList.contains('active')) {
-    console.log('Modal not active');
-    return;
-  }
-  
-  if (isAnimating) {
-    console.log('Still animating...');
-    return;
-  }
+  if (!modal.classList.contains('active')) return;
+  if (isAnimating) return;
   
   isAnimating = true;
   
-  // Hitung index sebelumnya
-  const prevIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
-  console.log('Moving to index:', prevIndex);
+  const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
   
   if (!allImages[prevIndex]) {
-    console.log('No image at index:', prevIndex);
     isAnimating = false;
     return;
   }
   
   try {
-    // Animate image change dengan efek yang sama
     await changeImageWithAnimation(allImages[prevIndex].src);
-    
-    // Update current index
-    currentImageIndex = prevIndex;
-    
-    console.log('Prev image shown successfully');
+    currentIndex = prevIndex;
   } catch (error) {
-    console.log('Error in prevImage:', error);
+    console.error('Error in prevImage:', error);
   } finally {
     isAnimating = false;
   }
 }
 
-function closeModal() {
-  console.log('Closing modal');
+// IMPROVED zoom blocking - non-intrusive
+function setupZoomPrevention() {
+  if (!previewImg || !modal) return;
   
-  // Reset semua
-  modalImg.style.animation = 'none';
-  modalImg.style.opacity = '0';
-  modalImg.style.transform = 'translateY(30px)';
-  
-  modal.classList.remove('active');
-  isAnimating = false;
-}
-
-// Block zoom pada gambar
-function blockImageZoom() {
-  if (!modalImg || !modal) return;
-  
-  const blockEvent = (e) => {
-    try { e.preventDefault(); } catch (err) {}
-    try { e.stopPropagation(); } catch (err) {}
-    return false;
-  };
-
-  // Wheel / mousewheel - cegah terutama jika Ctrl ditekan
-  modalImg.addEventListener('wheel', (e) => {
-    // selalu cegah scroll zoom pada gambar modal
-    blockEvent(e);
-  }, { passive: false });
-
-  modalImg.addEventListener('mousewheel', blockEvent, { passive: false });
-  modalImg.addEventListener('dblclick', blockEvent, { passive: false });
-
-  // Touch: cegah multi-touch (pinch) dan juga single touch move agar tidak di-zoom
-  modalImg.addEventListener('touchstart', (e) => {
-    if (e.touches && e.touches.length > 1) {
-      blockEvent(e); // pinch start
-    } else {
-      // cegah double-tap zoom
-      blockEvent(e);
-    }
-  }, { passive: false });
-
-  modalImg.addEventListener('touchmove', (e) => {
-    if (e.touches && e.touches.length > 1) {
-      blockEvent(e); // pinch move
-    } else {
-      blockEvent(e);
-    }
-  }, { passive: false });
-
-  // Safari gesture events (iOS Safari)
-  try {
-    modalImg.addEventListener('gesturestart', blockEvent);
-    modalImg.addEventListener('gesturechange', blockEvent);
-    modalImg.addEventListener('gestureend', blockEvent);
-  } catch (err) {
-    // some browsers don't support gesture events
-  }
-
-  // Global listeners while modal aktif: cegah ctrl+wheel dan keyboard zoom shortcuts
-  function globalWheelHandler(e) {
+  // Only prevent default browser zoom shortcuts
+  const preventZoomShortcuts = (e) => {
     if (!modal.classList.contains('active')) return;
-    if (e.ctrlKey) {
-      blockEvent(e);
-    }
-  }
-  document.addEventListener('wheel', globalWheelHandler, { passive: false });
-
-  function globalKeyHandler(e) {
-    if (!modal.classList.contains('active')) return;
-    // cegah Ctrl + +, -, =, 0  (zoom shortcuts)
+    
+    // Prevent Ctrl + +/-/0/=
     if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
-      blockEvent(e);
+      e.preventDefault();
+      return false;
     }
-    // cegah Ctrl + mousewheel via keydown (precaution)
-    if (e.ctrlKey && (e.key === 'Control')) {
-      blockEvent(e);
+  };
+  
+  // Listen for keyboard shortcuts
+  document.addEventListener('keydown', preventZoomShortcuts);
+  
+  // Prevent double-tap zoom on mobile (more subtle approach)
+  let lastTouchTime = 0;
+  modal.addEventListener('touchend', (e) => {
+    if (!modal.classList.contains('active')) return;
+    
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - lastTouchTime;
+    
+    if (timeDiff < 300 && timeDiff > 0) {
+      // Double tap detected, prevent zoom
+      e.preventDefault();
     }
-  }
-  document.addEventListener('keydown', globalKeyHandler, { passive: false });
+    
+    lastTouchTime = currentTime;
+  }, { passive: false });
 }
 
-// Handle keyboard navigation
+// Keyboard navigation tambahan
 function handleKeyboardNavigation(e) {
   if (!modal.classList.contains('active') || isAnimating) return;
-  
-  console.log('Key pressed:', e.key);
   
   switch(e.key) {
     case 'ArrowLeft':
@@ -583,17 +608,19 @@ function handleKeyboardNavigation(e) {
       nextImage();
       break;
     case 'Escape':
-      closeModal();
+      closeModalState();
       break;
   }
 }
 
-// Handle touch swipe for mobile
+// Touch swipe for mobile - IMPROVED VERSION
 function setupTouchSwipe() {
   let touchStartX = 0;
   let touchEndX = 0;
   let touchStartY = 0;
   let touchEndY = 0;
+  const SWIPE_THRESHOLD = 50;
+  const VERTICAL_THRESHOLD = 30;
   
   modal.addEventListener('touchstart', (e) => {
     if (!modal.classList.contains('active') || isAnimating) return;
@@ -611,19 +638,24 @@ function setupTouchSwipe() {
     const diffX = touchStartX - touchEndX;
     const diffY = touchStartY - touchEndY;
     
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+    // Only process horizontal swipes, ignore vertical scrolls
+    if (Math.abs(diffX) > Math.abs(diffY) && 
+        Math.abs(diffX) > SWIPE_THRESHOLD &&
+        Math.abs(diffY) < VERTICAL_THRESHOLD) {
+      
       if (diffX > 0) {
-        nextImage();
+        nextImage(); // Swipe left -> next
       } else {
-        prevImage();
+        prevImage(); // Swipe right -> prev
       }
     }
   }, { passive: true });
 }
 
+// Create custom scrollbar - FIXED VERSION
 function createCustomScrollbar() {
-  // don't create custom scrollbar on small screens (mobile phones)
-  if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) {
+  // Don't create on mobile
+  if (window.innerWidth <= 768) {
     return;
   }
 
@@ -631,6 +663,8 @@ function createCustomScrollbar() {
   
   const container = document.querySelector('.gallery-container');
   const mobileHeader = document.querySelector('.mobile-header');
+  
+  if (!container) return;
   
   customScrollbar = document.createElement('div');
   customScrollbar.className = 'custom-scrollbar';
@@ -667,8 +701,10 @@ function createCustomScrollbar() {
     }
     
     customScrollbar.style.display = 'block';
-    const scrollPercentage = (container.scrollTop / (scrollHeight - clientHeight)) * 50;
-    const thumbHeight = Math.max(50, (clientHeight / scrollHeight) * 50);
+    
+    // ✅ FIXED: Changed from * 50 to * 100
+    const scrollPercentage = (container.scrollTop / (scrollHeight - clientHeight)) * 100;
+    const thumbHeight = Math.max(50, (clientHeight / scrollHeight) * 100);
     
     scrollbarThumb.style.height = thumbHeight + '%';
     scrollbarThumb.style.top = scrollPercentage + '%';
@@ -710,9 +746,13 @@ function createCustomScrollbar() {
   setScrollbarPosition();
   updateScrollbar();
   
+  // ✅ FIXED: Added debounce to resize
   window.addEventListener('resize', () => {
-    setScrollbarPosition();
-    updateScrollbar();
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      setScrollbarPosition();
+      updateScrollbar();
+    }, 100);
   });
   
   window.addEventListener('scroll', () => {
@@ -720,92 +760,70 @@ function createCustomScrollbar() {
   });
 }
 
-// Event listeners
-function setupEventListeners() {
-  console.log('Setting up event listeners...');
-  
-  // Setup thumbnail clicks
-  thumbs.forEach(thumb => {
+// Cleanup function for memory management
+function cleanupEventListeners() {
+  // Cleanup any global listeners when needed
+  window.removeEventListener('resize', () => {});
+  document.removeEventListener('keydown', handleKeyboardNavigation);
+  window.removeEventListener('mousemove', handleMouseMove);
+}
+
+// Setup event listeners tambahan
+function setupAdditionalEventListeners() {
+  thumbContainers.forEach(thumb => {
     thumb.addEventListener('click', () => {
-      console.log('Thumb clicked');
-      openModal(thumb);
+      openModalFromThumb(thumb);
     });
   });
-
-  // Setup close button
-  closeBtn.addEventListener('click', closeModal);
   
-  // Setup navigation buttons awal
   findAndSetupNavButtons();
   
-  // Close modal when clicking outside
   modal.addEventListener('click', (e) => {
-    console.log('Modal clicked, target:', e.target.className);
-    
-    // Check if click is on nav button
-    if (e.target.classList.contains('nav-btn') || 
-        e.target.closest('.nav-btn') ||
-        e.target.classList.contains('prev-btn') ||
-        e.target.classList.contains('next-btn') ||
-        e.target.closest('.prev-btn') ||
-        e.target.closest('.next-btn')) {
-      console.log('Clicked on nav button, not closing');
-      return;
-    }
-    
-    const isClickOnModalBackground = 
-      e.target.classList.contains('modal') || 
-      e.target.classList.contains('modal-content-wrapper');
-  
-    const isClickOnImageArea = 
+    // Check if click is on image area or buttons
+    const isClickOnImage = 
       e.target.closest('.modal-image-container') ||
-      e.target.closest('.modal-content') ||
-      e.target.closest('.close-btn');
-  
-    if (!isClickOnImageArea) {
-      console.log('Closing modal via background click');
-      closeModal();
+      e.target.id === 'preview-img' ||
+      e.target.closest('.modal-card');
+    
+    const isClickOnButton = 
+      e.target.closest('.nav-btn') ||
+      e.target.closest('.close-btn') ||
+      e.target.classList.contains('nav-btn') ||
+      e.target.classList.contains('close-btn');
+    
+    // Close only if clicking on modal background (not image or buttons)
+    if (!isClickOnImage && !isClickOnButton) {
+      closeModalState();
     }
   });
 
-  // Block zoom
-  blockImageZoom();
-
-  // Add keyboard navigation
+  setupZoomPrevention();
   document.addEventListener('keydown', handleKeyboardNavigation);
-
-  // Add touch swipe for mobile
   setupTouchSwipe();
-
   window.addEventListener('mousemove', handleMouseMove);
   
-  // Event delegation untuk tombol yang mungkin dibuat nanti
+  // Event delegation for dynamically created buttons
   document.addEventListener('click', function(e) {
-    // Cek jika klik di tombol prev/next
-    if (e.target.classList.contains('prev-btn') || 
-        e.target.closest('.prev-btn') ||
-        (e.target.tagName === 'IMG' && e.target.closest('.prev-btn'))) {
-      console.log('Prev button clicked via event delegation');
+    if (e.target.closest('.prev-btn')) {
       handlePrevClick(e);
     }
     
-    if (e.target.classList.contains('next-btn') || 
-        e.target.closest('.next-btn') ||
-        (e.target.tagName === 'IMG' && e.target.closest('.next-btn'))) {
-      console.log('Next button clicked via event delegation');
+    if (e.target.closest('.next-btn')) {
       handleNextClick(e);
     }
   });
 }
 
-// Init
+// Initialize everything
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM Content Loaded');
   initLoadingScreen();
   initImageArray();
-  setupEventListeners();
+  setupAdditionalEventListeners();
   createCustomScrollbar();
   
-  // Coba setup tombol beberapa kali untuk memastikan
-  setTimeout(findAndSetupNavButtons, 1000);
+  // Setup buttons with delay to ensure DOM is ready
+  setTimeout(findAndSetupNavButtons, 100);
+  
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', cleanupEventListeners);
 });

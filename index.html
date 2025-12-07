@@ -35,26 +35,32 @@
 
 <!-- HTML yang harus diubah: -->
 <div id="preview-modal" class="modal">
-  <div class="modal-content-wrapper">
-    <!-- NAV BUTTONS DIPINDAHKAN KE SINI (tidak lagi di dalam .modal-image-container) -->
-    <button class="nav-btn prev-btn">
-      <img src="asset/svg/prev.svg" alt="Previous">
-    </button>
-
-    <button class="nav-btn next-btn">
-      <img src="asset/svg/next.svg" alt="Next">
-    </button>
+    <div class="modal-bg-layer"></div>
     
-    <div class="modal-content">
+  <div class="modal-content-wrapper">
+    
+    <div class="modal-card">
+      <!-- NAV BUTTONS -->
+      <div class="modal-card-patern"></div>
+      <button class="nav-btn prev-btn">
+        <img src="asset/svg/prev.svg" alt="Previous">
+      </button>
+
+      <button class="nav-btn next-btn">
+        <img src="asset/svg/next.svg" alt="Next">
+      </button>
+      
+      <!-- IMAGE CONTAINER -->
       <div class="modal-image-container">
         <img id="preview-img" src="" alt="Preview">
       </div>
+      
+      <!-- CLOSE BUTTON -->
+      <button class="close-btn">
+        <img src="asset/svg/Xboton.svg" alt="Close" class="close-icon">
+      </button>
     </div>
 
-    <!-- close tetap di wrapper agar tidak ikut resize gambar -->
-    <button class="close-btn">
-      <img src="asset/svg/Xboton.svg" alt="Close" class="close-icon">
-    </button>
   </div>
 </div>
 
