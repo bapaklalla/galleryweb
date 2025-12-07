@@ -446,7 +446,7 @@ body {
   }
   
   .gallery-container {
-    padding-top: 60px;
+    padding-top: 80px;
   }
 
   .sidebar1, .sidebar2 { display: none; }
@@ -454,7 +454,7 @@ body {
   .gallery { columns: 3; column-gap: 10px; }
   .prev-btn, .next-btn { display: none; }
   .modal { padding: 12px; }
-  .modal-image-container { max-height: calc(100vh - 100px); }
+  .modal-image-container { max-height: calc(100vh - 90px); }
   .custom-scrollbar { display: none !important; }
 }
 
