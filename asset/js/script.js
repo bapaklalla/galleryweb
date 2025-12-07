@@ -639,11 +639,11 @@ function setupTouchSwipe() {
     const diffY = touchStartY - touchEndY;
     
     // Only process horizontal swipes, ignore vertical scrolls
-    if (Math.abs(diffX) > Math.abs(diffY) && 
+    if (Math.abs(diffX) > Math.abs(diffX) && 
         Math.abs(diffX) > SWIPE_THRESHOLD &&
         Math.abs(diffY) < VERTICAL_THRESHOLD) {
       
-      if (diffX > 0) {
+      if (diffY > 0) {
         nextImage(); // Swipe left -> next
       } else {
         prevImage(); // Swipe right -> prev
