@@ -75,23 +75,6 @@ thumbs.forEach((thumb, index) => {
 });
 
 // ============================================================
-// ===================== NEXT / PREV ==========================
-// ============================================================
-
-function showNext() {
-    currentIndex = (currentIndex + 1) % thumbs.length;
-    previewImg.src = thumbs[currentIndex].src;
-}
-
-function showPrev() {
-    currentIndex = (currentIndex - 1 + thumbs.length) % thumbs.length;
-    previewImg.src = thumbs[currentIndex].src;
-}
-
-nextBtn.addEventListener("click", showNext);
-prevBtn.addEventListener("click", showPrev);
-
-// ============================================================
 // ================= CLOSE INTERACTIONS =======================
 // ============================================================
 
@@ -310,79 +293,64 @@ function handleMouseMove(e) {
   });
 }
 
-// Setup navigation buttons - dengan kode asli tetap
-function findAndSetupNavButtons() {
-  // Kode asli tetap ada
-  nextBtn.addEventListener("click", showNext);
-  prevBtn.addEventListener("click", showPrev);
-  
-  // Tambahan untuk animasi
-  const existingPrevBtn = document.querySelector('.prev-btn');
-  const existingNextBtn = document.querySelector('.next-btn');
-  
-  if (existingPrevBtn) {
-    existingPrevBtn.removeEventListener('click', handlePrevClick);
-    existingPrevBtn.addEventListener('click', handlePrevClick);
-  }
-  
-  if (existingNextBtn) {
-    existingNextBtn.removeEventListener('click', handleNextClick);
-    existingNextBtn.addEventListener('click', handleNextClick);
-  }
-}
+// ============================================================
+// ===================== FUNGSI BARU ==========================
+// ============================================================
 
-// Navigation button handlers untuk animasi
-function handlePrevClick(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  prevImage();
-}
-
-function handleNextClick(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  nextImage();
-}
-
-// Image change animation - FIXED VERSION (untuk next/prev dengan animasi)
-function changeImageWithAnimation(newSrc) {
+// Image change animation dengan 4 arah
+function changeImageWithAnimation(newSrc, direction = 'up') {
   return new Promise((resolve) => {
-    // ====== RESET SIZE ======
+    // Reset
     previewImg.style.width = 'auto';
     previewImg.style.height = 'auto';
     previewImg.style.maxWidth = '100%';
     previewImg.style.maxHeight = '100%';
     previewImg.style.position = 'static';
-    // ========================
-    
-    // Cleanup previous event listeners
-    previewImg.onload = null;
-    previewImg.onerror = null;
-    
-    // Set initial state
     previewImg.style.animation = 'none';
     previewImg.style.opacity = '0';
-    previewImg.style.transform = 'translateY(5px)';
+    
+    // Set initial position berdasarkan direction
+    switch(direction) {
+      case 'up':
+        previewImg.style.transform = 'translateY(30px)';
+        break;
+      case 'down':
+        previewImg.style.transform = 'translateY(-30px)';
+        break;
+      case 'left':
+        previewImg.style.transform = 'translateX(30px)';
+        break;
+      case 'right':
+        previewImg.style.transform = 'translateX(-30px)';
+        break;
+      default:
+        previewImg.style.transform = 'translateY(5px)';
+    }
     
     // Define load handler
     const loadHandler = () => {
-      // ====== RESET ULANG ======
+      // Reset ulang
       previewImg.style.width = 'auto';
       previewImg.style.height = 'auto';
       previewImg.style.maxWidth = '100%';
       previewImg.style.maxHeight = '100%';
-      // ========================
       
       if (modal) void modal.offsetWidth; // Trigger reflow
       
       previewImg.style.opacity = '1';
       
       setTimeout(() => {
-        previewImg.style.animation = `imageSlideUp ${SLIDE}ms ${EASING} forwards`;
+        // Pilih animasi berdasarkan direction
+        let animationName = 'imageSlideUp';
+        if (direction === 'down') animationName = 'imageSlideDown';
+        if (direction === 'left') animationName = 'imageSlideLeft';
+        if (direction === 'right') animationName = 'imageSlideRight';
+        
+        previewImg.style.animation = `${animationName} ${SLIDE}ms ${EASING} forwards`;
         
         setTimeout(() => {
           previewImg.style.animation = '';
-          previewImg.style.transform = 'translateY(0)';
+          previewImg.style.transform = 'translate(0, 0)';
           
           // Cleanup
           previewImg.onload = null;
@@ -396,7 +364,7 @@ function changeImageWithAnimation(newSrc) {
     // Define error handler
     const errorHandler = () => {
       previewImg.style.opacity = '1';
-      previewImg.style.transform = 'translateY(0)';
+      previewImg.style.transform = 'translate(0, 0)';
       resolve();
     };
     
@@ -421,7 +389,55 @@ function changeImageWithAnimation(newSrc) {
   });
 }
 
-// Open modal with specific index - FIXED VERSION (versi animasi)
+// Next image dengan direction
+async function nextImageWithDirection(direction = 'up') {
+  if (!modal.classList.contains('active')) return;
+  if (isAnimating) return;
+  
+  isAnimating = true;
+  
+  const nextIndex = (currentIndex + 1) % allImages.length;
+  
+  if (!allImages[nextIndex]) {
+    isAnimating = false;
+    return;
+  }
+  
+  try {
+    await changeImageWithAnimation(allImages[nextIndex].src, direction);
+    currentIndex = nextIndex;
+  } catch (error) {
+    console.error('Error in nextImage:', error);
+  } finally {
+    isAnimating = false;
+  }
+}
+
+// Previous image dengan direction
+async function prevImageWithDirection(direction = 'down') {
+  if (!modal.classList.contains('active')) return;
+  if (isAnimating) return;
+  
+  isAnimating = true;
+  
+  const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+  
+  if (!allImages[prevIndex]) {
+    isAnimating = false;
+    return;
+  }
+  
+  try {
+    await changeImageWithAnimation(allImages[prevIndex].src, direction);
+    currentIndex = prevIndex;
+  } catch (error) {
+    console.error('Error in prevImage:', error);
+  } finally {
+    isAnimating = false;
+  }
+}
+
+// Open modal with specific index
 function openModalWithIndex(index) {
   if (index < 0 || index >= allImages.length || isAnimating) return;
   
@@ -429,16 +445,13 @@ function openModalWithIndex(index) {
   currentIndex = index;
   const imgSrc = allImages[currentIndex].src;
   
-  findAndSetupNavButtons();
-  
-  // ====== RESET SIZE SEBELUM APA-APA ======
+  // Reset size
   previewImg.style.width = 'auto';
   previewImg.style.height = 'auto';
   previewImg.style.maxWidth = '100%';
   previewImg.style.maxHeight = '100%';
-  previewImg.style.position = 'static'; // Reset if using absolute
-  previewImg.style.transform = 'none'; // Reset transforms
-  // ========================================
+  previewImg.style.position = 'static';
+  previewImg.style.transform = 'none';
   
   // Reset state
   modal.classList.remove('active');
@@ -452,12 +465,11 @@ function openModalWithIndex(index) {
   
   // Define load handler
   const loadHandler = () => {
-    // ====== RESET ULANG PAS GAMBAR SUDAH LOAD ======
+    // Reset ulang
     previewImg.style.width = 'auto';
     previewImg.style.height = 'auto';
     previewImg.style.maxWidth = '100%';
     previewImg.style.maxHeight = '100%';
-    // ================================================
     
     // Trigger reflow
     if (modal) void modal.offsetWidth;
@@ -503,7 +515,7 @@ function openModalWithIndex(index) {
   }
 }
 
-// Open modal from thumbnail (versi animasi)
+// Open modal from thumbnail
 function openModalFromThumb(thumb) {
   const index = Array.from(thumbContainers).indexOf(thumb);
   if (index !== -1) {
@@ -511,117 +523,88 @@ function openModalFromThumb(thumb) {
   }
 }
 
-// Next image dengan animasi
-async function nextImage() {
-  if (!modal.classList.contains('active')) return;
-  if (isAnimating) return;
-  
-  isAnimating = true;
-  
-  const nextIndex = (currentIndex + 1) % allImages.length;
-  
-  if (!allImages[nextIndex]) {
-    isAnimating = false;
-    return;
-  }
-  
-  try {
-    await changeImageWithAnimation(allImages[nextIndex].src);
-    currentIndex = nextIndex;
-  } catch (error) {
-    console.error('Error in nextImage:', error);
-  } finally {
-    isAnimating = false;
-  }
-}
+// ============================================================
+// ==================== NAVIGASI TOOLBAR ======================
+// ============================================================
 
-// Previous image dengan animasi
-async function prevImage() {
-  if (!modal.classList.contains('active')) return;
-  if (isAnimating) return;
+function findAndSetupNavButtons() {
+  const existingPrevBtn = document.querySelector('.prev-btn');
+  const existingNextBtn = document.querySelector('.next-btn');
   
-  isAnimating = true;
-  
-  const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
-  
-  if (!allImages[prevIndex]) {
-    isAnimating = false;
-    return;
-  }
-  
-  try {
-    await changeImageWithAnimation(allImages[prevIndex].src);
-    currentIndex = prevIndex;
-  } catch (error) {
-    console.error('Error in prevImage:', error);
-  } finally {
-    isAnimating = false;
-  }
-}
-
-// IMPROVED zoom blocking - non-intrusive
-function setupZoomPrevention() {
-  if (!previewImg || !modal) return;
-  
-  // Only prevent default browser zoom shortcuts
-  const preventZoomShortcuts = (e) => {
-    if (!modal.classList.contains('active')) return;
-    
-    // Prevent Ctrl + +/-/0/=
-    if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
+  if (existingPrevBtn) {
+    existingPrevBtn.removeEventListener('click', handlePrevClick);
+    existingPrevBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      return false;
+      e.stopPropagation();
+      
+      // Animasi tombol ke kiri
+      existingPrevBtn.style.animation = 'buttonSwipeLeft 0.3s ease';
+      setTimeout(() => existingPrevBtn.style.animation = '', 300);
+      
+      // Gambar animasi dari kiri
+      prevImageWithDirection('left');
+    });
+  }
+  
+  if (existingNextBtn) {
+    existingNextBtn.removeEventListener('click', handleNextClick);
+    existingNextBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Animasi tombol ke kanan
+      existingNextBtn.style.animation = 'buttonSwipeRight 0.3s ease';
+      setTimeout(() => existingNextBtn.style.animation = '', 300);
+      
+      // Gambar animasi dari kanan
+      nextImageWithDirection('right');
+    });
+  }
+  
+  // Tombol keyboard
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('active') || isAnimating) return;
+    
+    switch(e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        if (existingPrevBtn) {
+          existingPrevBtn.style.animation = 'buttonSwipeLeft 0.3s ease';
+          setTimeout(() => existingPrevBtn.style.animation = '', 300);
+        }
+        prevImageWithDirection('left');
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        if (existingNextBtn) {
+          existingNextBtn.style.animation = 'buttonSwipeRight 0.3s ease';
+          setTimeout(() => existingNextBtn.style.animation = '', 300);
+        }
+        nextImageWithDirection('right');
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        nextImageWithDirection('up');
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        prevImageWithDirection('down');
+        break;
+      case 'Escape':
+        closeModalState();
+        break;
     }
-  };
-  
-  // Listen for keyboard shortcuts
-  document.addEventListener('keydown', preventZoomShortcuts);
-  
-  // Prevent double-tap zoom on mobile (more subtle approach)
-  let lastTouchTime = 0;
-  modal.addEventListener('touchend', (e) => {
-    if (!modal.classList.contains('active')) return;
-    
-    const currentTime = new Date().getTime();
-    const timeDiff = currentTime - lastTouchTime;
-    
-    if (timeDiff < 300 && timeDiff > 0) {
-      // Double tap detected, prevent zoom
-      e.preventDefault();
-    }
-    
-    lastTouchTime = currentTime;
-  }, { passive: false });
-}
-
-// Keyboard navigation tambahan
-function handleKeyboardNavigation(e) {
-  if (!modal.classList.contains('active') || isAnimating) return;
-  
-  switch(e.key) {
-    case 'ArrowLeft':
-      e.preventDefault();
-      prevImage();
-      break;
-    case 'ArrowRight':
-      e.preventDefault();
-      nextImage();
-      break;
-    case 'Escape':
-      closeModalState();
-      break;
-  }
+  });
 }
 
 // ============================================================
 // ==================== SWIPE ATAS-BAWAH ======================
 // ============================================================
 
-// Touch swipe for mobile - VERTICAL SWIPE VERSION
 function setupTouchSwipe() {
   let touchStartY = 0;
   let touchEndY = 0;
-  const SWIPE_THRESHOLD = 50; // Minimal swipe 50px
+  const SWIPE_THRESHOLD = 50;
   
   modal.addEventListener('touchstart', (e) => {
     if (!modal.classList.contains('active') || isAnimating) return;
@@ -635,22 +618,54 @@ function setupTouchSwipe() {
     touchEndY = e.changedTouches[0].screenY;
     const diffY = touchStartY - touchEndY;
     
-    // Cek apakah swipe cukup jauh
     if (Math.abs(diffY) > SWIPE_THRESHOLD) {
       if (diffY > 0) {
-        // Swipe UP (jari dari bawah ke atas) → NEXT image
-        nextImage();
+        // Swipe UP → NEXT (animasi dari bawah)
+        nextImageWithDirection('up');
       } else {
-        // Swipe DOWN (jari dari atas ke bawah) → PREV image
-        prevImage();
+        // Swipe DOWN → PREV (animasi dari atas)
+        prevImageWithDirection('down');
       }
     }
   }, { passive: true });
 }
 
-// Create custom scrollbar - FIXED VERSION
+// ============================================================
+// ==================== FITUR LAINNYA =========================
+// ============================================================
+
+// IMPROVED zoom blocking
+function setupZoomPrevention() {
+  if (!previewImg || !modal) return;
+  
+  const preventZoomShortcuts = (e) => {
+    if (!modal.classList.contains('active')) return;
+    
+    if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
+      e.preventDefault();
+      return false;
+    }
+  };
+  
+  document.addEventListener('keydown', preventZoomShortcuts);
+  
+  let lastTouchTime = 0;
+  modal.addEventListener('touchend', (e) => {
+    if (!modal.classList.contains('active')) return;
+    
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - lastTouchTime;
+    
+    if (timeDiff < 300 && timeDiff > 0) {
+      e.preventDefault();
+    }
+    
+    lastTouchTime = currentTime;
+  }, { passive: false });
+}
+
+// Create custom scrollbar
 function createCustomScrollbar() {
-  // Don't create on mobile
   if (window.innerWidth <= 768) {
     return;
   }
@@ -698,7 +713,6 @@ function createCustomScrollbar() {
     
     customScrollbar.style.display = 'block';
     
-    // ✅ FIXED: Changed from * 50 to * 100
     const scrollPercentage = (container.scrollTop / (scrollHeight - clientHeight)) * 100;
     const thumbHeight = Math.max(50, (clientHeight / scrollHeight) * 100);
     
@@ -742,7 +756,6 @@ function createCustomScrollbar() {
   setScrollbarPosition();
   updateScrollbar();
   
-  // ✅ FIXED: Added debounce to resize
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
@@ -756,15 +769,14 @@ function createCustomScrollbar() {
   });
 }
 
-// Cleanup function for memory management
+// Cleanup function
 function cleanupEventListeners() {
-  // Cleanup any global listeners when needed
   window.removeEventListener('resize', () => {});
   document.removeEventListener('keydown', handleKeyboardNavigation);
   window.removeEventListener('mousemove', handleMouseMove);
 }
 
-// Setup event listeners tambahan
+// Setup event listeners
 function setupAdditionalEventListeners() {
   thumbContainers.forEach(thumb => {
     thumb.addEventListener('click', () => {
@@ -775,7 +787,6 @@ function setupAdditionalEventListeners() {
   findAndSetupNavButtons();
   
   modal.addEventListener('click', (e) => {
-    // Check if click is on image area or buttons
     const isClickOnImage = 
       e.target.closest('.modal-image-container') ||
       e.target.id === 'preview-img' ||
@@ -787,39 +798,44 @@ function setupAdditionalEventListeners() {
       e.target.classList.contains('nav-btn') ||
       e.target.classList.contains('close-btn');
     
-    // Close only if clicking on modal background (not image or buttons)
     if (!isClickOnImage && !isClickOnButton) {
       closeModalState();
     }
   });
 
   setupZoomPrevention();
-  document.addEventListener('keydown', handleKeyboardNavigation);
-  setupTouchSwipe(); // ← INI YANG SUDAH DIUBAH KE ATAS-BAWAH
+  setupTouchSwipe();
   window.addEventListener('mousemove', handleMouseMove);
   
-  // Event delegation for dynamically created buttons
+  // Event delegation untuk tombol
   document.addEventListener('click', function(e) {
     if (e.target.closest('.prev-btn')) {
-      handlePrevClick(e);
+      const btn = e.target.closest('.prev-btn');
+      btn.style.animation = 'buttonSwipeLeft 0.3s ease';
+      setTimeout(() => btn.style.animation = '', 300);
+      prevImageWithDirection('left');
     }
     
     if (e.target.closest('.next-btn')) {
-      handleNextClick(e);
+      const btn = e.target.closest('.next-btn');
+      btn.style.animation = 'buttonSwipeRight 0.3s ease';
+      setTimeout(() => btn.style.animation = '', 300);
+      nextImageWithDirection('right');
     }
   });
 }
 
-// Initialize everything
+// ============================================================
+// ==================== INITIALIZE ALL ========================
+// ============================================================
+
 document.addEventListener('DOMContentLoaded', () => {
   initLoadingScreen();
   initImageArray();
   setupAdditionalEventListeners();
   createCustomScrollbar();
   
-  // Setup buttons with delay to ensure DOM is ready
   setTimeout(findAndSetupNavButtons, 100);
   
-  // Cleanup on page unload
   window.addEventListener('beforeunload', cleanupEventListeners);
 });
