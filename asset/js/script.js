@@ -381,16 +381,16 @@ function changeImageWithAnimation(newSrc, direction = 'up') {
     
     switch(direction) {
       case 'up':
-        previewImg.style.transform = 'translateY(30px)';
+        previewImg.style.transform = 'translateY(10px)';
         break;
       case 'down':
-        previewImg.style.transform = 'translateY(-30px)';
+        previewImg.style.transform = 'translateY(-10px)';
         break;
       case 'left':
-        previewImg.style.transform = 'translateX(30px)';
+        previewImg.style.transform = 'translateX(10px)';
         break;
       case 'right':
-        previewImg.style.transform = 'translateX(-30px)';
+        previewImg.style.transform = 'translateX(-10px)';
         break;
       default:
         previewImg.style.transform = 'translateY(5px)';
