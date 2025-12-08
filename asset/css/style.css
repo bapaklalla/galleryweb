@@ -514,7 +514,7 @@ body {
 
 /* Mobile - Extra Small */
 @media (max-width: 320px) {
-  .gallery { columns: 2; }
+  .gallery { columns: 3; }
   .gallery-container { padding: 6px; padding-top: 60px; margin-left: 1px;}
   .thumb { margin-bottom: 4px; }
   .thumb img { border-radius: 4px; }
@@ -528,7 +528,7 @@ body {
 /* Tablet */
 @media (min-width: 577px) and (max-width: 768px) {
   .sidebar1, .sidebar2 { display: none; }
-  .gallery { columns: 3; }
+  .gallery { columns: 4; }
   .gallery-container { 
     width: 99vw;
     margin: 0;
