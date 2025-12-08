@@ -319,9 +319,73 @@ body {
   animation: imageSlideUp 0.3s ease forwards;
 }
 
+/* Tambah animasi untuk 4 arah */
 @keyframes imageSlideUp {
-  0% { transform: translateY(-5px); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes imageSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes imageSlideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes imageSlideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes buttonSwipeUp {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
   100% { transform: translateY(0); }
+}
+
+@keyframes buttonSwipeDown {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes buttonSwipeLeft {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes buttonSwipeRight {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
 }
 
 /* Navigation buttons */
