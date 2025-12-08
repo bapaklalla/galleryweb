@@ -499,7 +499,7 @@ body {
 
 /* Mobile - Very Small */
 @media (max-width: 400px) {
-  .gallery { columns: 3; }
+  .gallery { columns: 4; }
   .gallery-container { padding: 8px; padding-top: 60px; margin-left: 2px; }
   .thumb { margin-bottom: 6px; }
   .thumb img { border-radius: 6px; }
