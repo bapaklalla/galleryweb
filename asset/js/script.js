@@ -119,9 +119,9 @@ let resizeTimeout = null;
 
 // Settings
 const BLINK = 0;     // ms - blink duration
-const SLIDE = 0;   // ms - slide duration  
-const EASING = "cubic-bezier(0.4, 0, 0, 1)"; // easing
-const CLOSE_DELAY = 300;
+const SLIDE = 1;   // ms - slide duration  
+const EASING = "cubic-bezier(0.9, 0, 0, 1)"; // easing
+const CLOSE_DELAY = 100;
 
 // Prevent right-click
 document.addEventListener("contextmenu", e => e.preventDefault());
@@ -360,33 +360,9 @@ function handleNextClick(e) {
   nextImageWithDirection('right');
 }
 
-// Fungsi untuk trigger blink animation di gambar modal
-function triggerImageBlink() {
-  // Tambah class modal-img-blink ke container gambar
-  const imageContainer = document.querySelector('.modal-image-container');
-  if (imageContainer) {
-    // Tambah class untuk blink
-    imageContainer.classList.add('modal-img-blink');
-    
-    // Tunggu sebentar lalu aktifkan animasi
-    setTimeout(() => {
-      imageContainer.classList.add('active');
-      
-      // Hapus class setelah animasi selesai
-      setTimeout(() => {
-        imageContainer.classList.remove('active');
-        imageContainer.classList.remove('modal-img-blink');
-      }, 300); // Durasi animasi blink
-    }, 10);
-  }
-}
-
 // Image change animation - FIXED VERSION (untuk next/prev dengan animasi 4 arah)
 function changeImageWithAnimation(newSrc, direction = 'up') {
   return new Promise((resolve) => {
-    // Trigger blink animation sebelum ganti gambar
-    triggerImageBlink();
-    
     // ====== RESET SIZE ======
     previewImg.style.width = 'auto';
     previewImg.style.height = 'auto';
@@ -405,16 +381,16 @@ function changeImageWithAnimation(newSrc, direction = 'up') {
     
     switch(direction) {
       case 'up':
-        previewImg.style.transform = 'translateY(10px)';
+        previewImg.style.transform = 'translateY(30px)';
         break;
       case 'down':
-        previewImg.style.transform = 'translateY(-5px)';
+        previewImg.style.transform = 'translateY(-30px)';
         break;
       case 'left':
-        previewImg.style.transform = 'translateX(10px)';
+        previewImg.style.transform = 'translateX(30px)';
         break;
       case 'right':
-        previewImg.style.transform = 'translateX(5px)';
+        previewImg.style.transform = 'translateX(-30px)';
         break;
       default:
         previewImg.style.transform = 'translateY(5px)';
@@ -529,9 +505,6 @@ function openModalWithIndex(index) {
     modal.classList.add('show');
     previewImg.style.opacity = '1';
     
-    // Trigger blink animation saat modal terbuka
-    triggerImageBlink();
-    
     // Register history state
     registerModalState();
     
@@ -551,10 +524,6 @@ function openModalWithIndex(index) {
     modal.classList.add('show');
     previewImg.style.opacity = '1';
     previewImg.style.transform = 'translateY(0)';
-    
-    // Trigger blink animation walau error
-    triggerImageBlink();
-    
     registerModalState();
     isAnimating = false;
   };
@@ -886,7 +855,7 @@ function setupAdditionalEventListeners() {
   setupTouchSwipe(); // ← INI SUDAH VERTICAL SWIPE
   window.addEventListener('mousemove', handleMouseMove);
   
-  // Event delegation untuk tombol next/prev dengan blink
+  // Event delegation for dynamically created buttons
   document.addEventListener('click', function(e) {
     if (e.target.closest('.prev-btn')) {
       const btn = e.target.closest('.prev-btn');
